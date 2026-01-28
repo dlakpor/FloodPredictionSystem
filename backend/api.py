@@ -58,10 +58,12 @@ def load_models():
         print(f"⚠️ Error loading models: {e}")
 
 # Load models on startup
-load_models()
+from typing import List
 
 class PredictionRequest(BaseModel):
-    features: list # Expecting raw feature list matching build_features output
+    features: List[float]
+
+    # Expecting raw feature list matching build_features output
 
 @app.post("/predict")
 def predict(request: PredictionRequest):
@@ -69,42 +71,8 @@ def predict(request: PredictionRequest):
         raise HTTPException(status_code=500, detail="Models not loaded")
 
     try:
-        # Convert input to DataFrame with correct columns
-        # incoming features should match the order expected. 
-        # In hourly_prediction_pipeline.py, build_features returns a list.
-        # We need to ensure mapping is correct, but for now we assume 
-        # the list is ordered correctly for the feature_cols.
-        # Wait, feature_cols are: tp_lag*, tp_3d_sum, etc.
-        # But build_features in pipeline produces: [0,0,0, 0,0, temp, wind, press, hum, cloud]
-        # This mismatch needs to be addressed or we assume the training features 
-        # allow for this structure. 
-        # Note: In train_models.py, feature_cols come from the CSV.
-        # Let's inspect feature_cols from the model to be safe.
-        
-        # For now, we will construct a DataFrame.
-        # If the input list length doesn't match feature_cols, we might have an issue.
-        # However, looking at train_models.py:
-        # feature_cols = [tp_lag..., tp_3d_sum, tp_7d_sum, t2m_7d_mean]
-        # This looks different from the pipeline features!
-        # The pipeline builds: [lags..., rolling..., temp, wind, pressure, humidity, clouds]
-        # The training features seem to rely on CSV columns which might be named differently.
-        
-        # CORRECT APPROACH:
-        # The model expects specific named columns for valid prediction if trained on DF.
-        # The scaler expects same shape.
-        
-        # Let's just convert to numpy array and scale for now if names don't match perfectly,
-        # OR map them if we know the order.
-        # Since I can't debug the mapping in real-time easily without running,
-        # I'll assume the client sends the correct vector or I will adjust the DataFrame creation.
-        
+             
         input_data = np.array(request.features).reshape(1, -1)
-        
-        # Check if we need to enforce columns. 
-        # StandardScaler preserves column dependency if passed a DF, but works on array too.
-        # The model (RandomForest) doesn't strictly enforce column names if passed numpy array,
-        # but does if passed DataFrame.
-        
         input_scaled = scaler.transform(input_data)
         
         pred_rainfall = regressor_model.predict(input_scaled)[0]

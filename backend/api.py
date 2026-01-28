@@ -8,6 +8,20 @@ import os
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",  # local Vite frontend
+        "https://flood-prediction-system-eight.vercel.app"  # Vercel frontend
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 # Allow frontend access
 app.add_middleware(
     CORSMiddleware,

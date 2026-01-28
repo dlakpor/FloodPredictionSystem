@@ -8,6 +8,7 @@ import os
 
 app = FastAPI()
 
+# render attaachment starts here
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
@@ -20,7 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+# render attachment ends here
 
 # Allow frontend access
 app.add_middleware(

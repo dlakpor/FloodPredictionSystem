@@ -1,0 +1,23 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# Data (large or generated)
+data/*.csv
+data/*.json
+
+# Frontend
+node_modules/
+dist/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+~$*
